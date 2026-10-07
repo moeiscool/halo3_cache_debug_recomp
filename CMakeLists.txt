@@ -14,6 +14,7 @@ include(generated/rexglue.cmake)
 # Sources
 set(HALO3CACHEDEBUG_SOURCES
     source/main.cpp
+    source/halo3_cache_debug_hooks.cpp
 )
 
 if(WIN32)

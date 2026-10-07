@@ -26,7 +26,7 @@ struct input_globals_xenon
 	bool initialized; // 0x0
 	bool suppressed_flag; // 0x1
 	bool rumble_suppressed_flag; // 0x2
-	rex::be<unsigned long> last_milliseconds; // 0x4
+	rex::be<uns32> last_milliseconds; // 0x4
 
 	rex::be<unsigned short> __flags; // 0x8
 
@@ -39,7 +39,7 @@ struct input_globals_xenon
 
 	gamepad_state_be gamepad_suppressed; // 0x118
 	rumble_state_be rumble_states[4]; // 0x154
-	rex::be<long> memory_units_last_change_time; // 0x164
+	rex::be<int32> memory_units_last_change_time; // 0x164
 
 	char __data168[6]; // 0x168
 

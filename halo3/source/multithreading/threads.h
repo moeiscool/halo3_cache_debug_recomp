@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 /* ---------- constants */
 
 /* ---------- definitions */
@@ -12,7 +14,7 @@
 
 extern void initialize_thread_management(void);
 extern void destroy_thread_management(void);
-extern void sleep(unsigned long sleep_time_in_milliseconds);
+extern void sleep_milliseconds(uns32 sleep_time_in_milliseconds);
 
 /* ---------- globals */
 

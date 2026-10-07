@@ -6,6 +6,8 @@
 
 #include "rex_macros.h"
 
+#include "cseries/cseries_win32_compat.h"
+
 /* ---------- constants */
 
 /* ---------- definitions */
@@ -26,7 +28,7 @@
 
 /* ---------- public code */
 
-unsigned long system_milliseconds(void)
+uns32 system_milliseconds(void)
 {
 	return GetTickCount();
 }

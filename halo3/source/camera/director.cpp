@@ -12,8 +12,8 @@
 
 /* ---------- prototypes */
 
-static e_director_mode choose_appropriate_director(long user_index);
-static void change_debug_director_if_necessary(long user_index);
+static e_director_mode choose_appropriate_director(int32 user_index);
+static void change_debug_director_if_necessary(int32 user_index);
 
 /* ---------- globals */
 
@@ -45,19 +45,19 @@ void director_update(float dt)
 	REX_PPC_INVOKE(director_update, dt);
 }
 
-void director_set_mode(long user_index, e_director_mode director_mode)
+void director_set_mode(int32 user_index, e_director_mode director_mode)
 {
 	REX_PPC_INVOKE(director_set_mode, user_index, director_mode);
 }
 
 /* ---------- private code */
 
-static e_director_mode choose_appropriate_director(long user_index)
+static e_director_mode choose_appropriate_director(int32 user_index)
 {
 	return REX_PPC_INVOKE(choose_appropriate_director, user_index);
 }
 
-static void change_debug_director_if_necessary(long user_index)
+static void change_debug_director_if_necessary(int32 user_index)
 {
 	REX_PPC_INVOKE(change_debug_director_if_necessary, user_index);
 }

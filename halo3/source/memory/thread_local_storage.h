@@ -4,13 +4,15 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 #include "rex_macros.h"
 
 /* ---------- constants */
 
 /* ---------- definitions */
 
-constexpr unsigned long k_tls_game_globals_offset = 0x80;
+constexpr uns32 k_tls_game_globals_offset = 0x80;
 
 /* ---------- prototypes */
 
@@ -21,7 +23,7 @@ DECLARE_REX_FUNC(get_thread_local_by_offset);
 /* ---------- public code */
 
 template<typename t_type>
-t_type* get_thread_local_by_offset(unsigned long offset)
+t_type* get_thread_local_by_offset(uns32 offset)
 {
 	t_type* result = rex::ppc::GuestToHostFunction<t_type*>(__imp__get_thread_local_by_offset, offset);
 	return result;

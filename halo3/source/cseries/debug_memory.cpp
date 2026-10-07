@@ -37,7 +37,7 @@ void debug_memory_free_for_exit(void)
     REX_PPC_INVOKE(debug_memory_free_for_exit);
 }
 
-void system_debug_memory_internal(char const* place, char const* source_file, long source_line)
+void system_debug_memory_internal(char const* place, char const* source_file, int32 source_line)
 {
 }
 

@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 #include "rex_macros.h"
 
 /* ---------- constants */
@@ -12,8 +14,8 @@
 
 /* ---------- prototypes */
 
-extern inline void update_button(unsigned char* frames, unsigned short* msec, bool down, unsigned long elapsed_msec);
-extern inline void update_button(unsigned char* frames, rex::be<unsigned short>* msec, bool down, unsigned long elapsed_msec);
+extern inline void update_button(unsigned char* frames, unsigned short* msec, bool down, uns32 elapsed_msec);
+extern inline void update_button(unsigned char* frames, rex::be<unsigned short>* msec, bool down, uns32 elapsed_msec);
 
 /* ---------- globals */
 

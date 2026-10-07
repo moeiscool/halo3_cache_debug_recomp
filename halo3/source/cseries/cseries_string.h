@@ -4,7 +4,9 @@
 
 /* ---------- headers */
 
-#include <vadefs.h>
+#include "cseries/platform.h"
+
+#include <stdarg.h>
 
 /* ---------- constants */
 
@@ -24,21 +26,21 @@ struct csstrtok_data
 
 /* ---------- prototypes */
 
-extern bool ascii_islower(long character_code);
-extern bool ascii_isupper(long character_code);
-extern bool ascii_isdigit(long character_code);
-extern bool ascii_isalnum(long character_code);
-extern bool ascii_isspace(long character_code);
+extern bool ascii_islower(int32 character_code);
+extern bool ascii_isupper(int32 character_code);
+extern bool ascii_isdigit(int32 character_code);
+extern bool ascii_isalnum(int32 character_code);
+extern bool ascii_isspace(int32 character_code);
 extern bool ascii_isspace(char character_code);
-extern long ascii_tolower(long character_code);
-extern long ascii_toupper(long character_code);
+extern int32 ascii_tolower(int32 character_code);
+extern int32 ascii_toupper(int32 character_code);
 extern char* ascii_strnupr(char* string, size_t count);
 extern char* ascii_strnlwr(char* string, size_t count);
 extern unsigned int ascii_stristr(char const* look_inside, char const* look_for);
-extern long ascii_strnicmp(char const* s1, char const* s2, size_t maximum_character_comparisons);
-extern long ascii_stricmp(char const* s1, char const* s2);
-extern long csstricmp(char const* s1, char const* s2);
-extern long csstrnicmp(char const* s1, char const* s2, size_t count);
+extern int32 ascii_strnicmp(char const* s1, char const* s2, size_t maximum_character_comparisons);
+extern int32 ascii_stricmp(char const* s1, char const* s2);
+extern int32 csstricmp(char const* s1, char const* s2);
+extern int32 csstrnicmp(char const* s1, char const* s2, size_t count);
 extern char* csstristr(char const* haystack, char const* needle);
 extern char* csstrnzcpy(char* s1, char const* s2, size_t s1_size);
 extern char* csstrnzcat(char* s1, char const* s2, size_t s1_size);

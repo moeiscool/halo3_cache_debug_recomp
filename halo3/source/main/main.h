@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "rex_macros.h"
+
 #include "game/game_options.h"
 #include "cseries/cseries_macros.h"
 
@@ -13,7 +15,7 @@
 
 #define WAIT_FOR_RENDER_THREAD() c_wait_for_render_thread CONCATX(__render_thread_lock_, __LINE__)(__FILE__, __LINE__)
 
-enum e_map_memory_configuration
+enum e_map_memory_configuration : int
 {
 	_map_memory_configuration_none = 0,
 	_map_memory_configuration_main_menu,
@@ -64,11 +66,11 @@ enum e_registered_threads
 
 /* ---------- definitions */
 
-typedef unsigned long unlock_token;
+typedef uns32 unlock_token;
 class c_wait_for_render_thread
 {
 public:
-	c_wait_for_render_thread(char const* file, long line);
+	c_wait_for_render_thread(char const* file, int32 line);
 	~c_wait_for_render_thread(void);
 private:
 	unlock_token m_token;
@@ -79,7 +81,7 @@ static_assert(sizeof(c_wait_for_render_thread) == 4);
 
 /* ---------- globals */
 
-extern bool& disable_main_loop_throttle;
+extern REX_DATA_REFERENCE_EXTERN(bool, disable_main_loop_throttle);
 
 /* ---------- public code */
 
@@ -93,7 +95,7 @@ extern bool enable_render_thread(bool enable);
 extern bool render_thread_enabled(void);
 extern void trace_dump_process_thread_start(e_registered_threads thread);
 extern void trace_dump_process_thread_stop(e_registered_threads thread);
-extern unlock_token _internal_halt_render_thread_and_lock_resources(char const* file, long line);
+extern unlock_token _internal_halt_render_thread_and_lock_resources(char const* file, int32 line);
 extern void unlock_resources_and_resume_render_thread(unlock_token token);
 
 // main game
