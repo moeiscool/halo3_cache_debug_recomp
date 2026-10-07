@@ -17,7 +17,7 @@ See [halo3_cache_release_recomp](https://github.com/twist84/halo3_cache_release_
 | Target | State |
 |---|---|
 | Windows | Boots and plays (screenshot above). This is where the project is developed. |
-| Linux | Builds with one command (`scripts/build_linux.sh`) against the released SDK. Checked up to the runtime starting and loading the game file; not yet played through with the game. |
+| Linux | Builds with one command, on the host (`scripts/build_linux.sh`) or in Docker (`scripts/docker_build_linux.sh`), against the released SDK. Checked up to the runtime starting and loading the game file; not yet played through with the game. |
 | PS5 (jailbroken) | Build scripts and host are in place, adapted from the [mcla-recomp](https://github.com/holdmysocks/mcla-recomp) PS5 port. **Not yet run on a console.** See [`ps5/README.md`](ps5/README.md). |
 
 Help is welcome on all three: see [Contributing](#contributing).
@@ -92,20 +92,43 @@ Controller 0 is always treated as signed in to Xbox Live. Script documentation c
 
 ## Building and running (Linux)
 
-### What you need
+The game runs on x86-64 Linux with a Vulkan driver for your GPU (Mesa's RADV or ANV, or NVIDIA's), glibc 2.35 or newer and GCC 13's C++ runtime or newer. Those last two are what the SDK's prebuilt libraries need: Ubuntu 24.04 and newer, Debian 13, Fedora 39 and newer, Arch and SteamOS all qualify. You also need your `halo3_cache_debug.xex` and the build's data files.
 
-- x86-64 Linux with a Vulkan driver for your GPU (Mesa's RADV or ANV, or NVIDIA's).
-- CMake 3.25 or newer, Ninja, Clang 18 or newer, curl, unzip. For example:
-  - Debian/Ubuntu: `sudo apt install cmake ninja-build clang curl unzip libvulkan1 mesa-vulkan-drivers`
-  - Arch: `sudo pacman -S --needed cmake ninja clang curl unzip vulkan-icd-loader` (plus `vulkan-radeon`, `vulkan-intel` or your NVIDIA driver)
-  - Fedora: `sudo dnf install cmake ninja-build clang curl unzip vulkan-loader mesa-vulkan-drivers`
-- Your `halo3_cache_debug.xex` and the build's data files.
+There are two ways to build. Both produce the same thing.
 
-### Build
+### Build with Docker (nothing else to install)
 
 ```bash
 git clone <this repository>
 cd halo3_cache_debug_recomp
+bash scripts/docker_build_linux.sh --xex /path/to/halo3/halo3_cache_debug.xex
+```
+
+The only requirement on your machine is Docker.
+- The first run builds a toolchain image from `docker/linux/Dockerfile`: Ubuntu 24.04's Clang, CMake and Ninja, plus the ReXGlue SDK release checked against its SHA-256. That takes a few minutes, once.
+- Every run after that starts the container straight away and rebuilds only what changed. The build directory (`out/docker/`) stays on your disk between runs.
+- Your repository and the folder holding your executable are mounted into the container (the executable read-only), so nothing of the game is ever copied into the image.
+- Files are written as your user, not root.
+- The result is `out/linux/halo3_cache_debug/`: the executable, `librexruntime.so` and the GPU plugin `librexgpu-xenos.so`. Run it in place or copy the folder anywhere.
+
+Options:
+- `--config debug` or `--config relwithdebinfo` for other build types.
+- `--jobs N` to set parallel compile jobs.
+- `--rebuild-image` after `docker/linux/` changes.
+
+The executable's path is remembered, so later runs need no `--xex`. Behind a proxy that intercepts HTTPS, build the image from a base that trusts the proxy's certificate authority: `docker build --build-arg BASE_IMAGE=<your ubuntu:24.04 image> -t halo3-linux-build docker/linux`.
+
+### Build on the host
+
+Install CMake 3.25 or newer, Ninja, Clang 18 or newer, curl and unzip, for example:
+
+- Debian/Ubuntu: `sudo apt install cmake ninja-build clang curl unzip libvulkan1 mesa-vulkan-drivers`
+- Arch: `sudo pacman -S --needed cmake ninja clang curl unzip vulkan-icd-loader` (plus `vulkan-radeon`, `vulkan-intel` or your NVIDIA driver)
+- Fedora: `sudo dnf install cmake ninja-build clang curl unzip vulkan-loader mesa-vulkan-drivers`
+
+Then:
+
+```bash
 bash scripts/build_linux.sh --xex /path/to/halo3/halo3_cache_debug.xex
 ```
 
@@ -117,17 +140,23 @@ The script runs these steps, skipping any whose result is already there, so run 
 4. Recompiles the game's code into `generated/`.
 5. Builds `out/build/linux-amd64-release/halo3_cache_debug`, with `librexruntime.so` and the GPU plugin `librexgpu-xenos.so` beside it.
 
-Options: `--config debug` or `--config relwithdebinfo` for other builds, `--jobs N`, and `--play [DIR]` to start the game when the build is done. By hand, the same is `rexglue codegen halo3_cache_debug_manifest.toml`, then `cmake --preset linux-amd64-release -DCMAKE_PREFIX_PATH=<sdk>`, then `cmake --build out/build/linux-amd64-release`.
+Options:
+- `--config debug` or `--config relwithdebinfo` for other build types.
+- `--jobs N` to set parallel compile jobs.
+- `--play [DIR]` to start the game when the build is done.
+
+By hand, the same is `rexglue codegen halo3_cache_debug_manifest.toml`, then `cmake --preset linux-amd64-release -DCMAKE_PREFIX_PATH=<sdk>`, then `cmake --build out/build/linux-amd64-release`.
 
 ### Run
 
 Start the executable from your game folder; it uses the current folder exactly as on Windows (game data, saves, shader cache, `halo3_cache_debug.toml`), and takes the same settings:
 
 ```bash
-cd /path/to/halo3 && /path/to/halo3_cache_debug_recomp/out/build/linux-amd64-release/halo3_cache_debug
+cd /path/to/halo3 && /path/to/halo3_cache_debug_recomp/out/linux/halo3_cache_debug/halo3_cache_debug             # Docker build
+cd /path/to/halo3 && /path/to/halo3_cache_debug_recomp/out/build/linux-amd64-release/halo3_cache_debug           # host build
 ```
 
-The executable finds its two libraries in its own folder, so it can be started from anywhere. Add `--log_level=debug --log_file=run.log` when reporting a problem.
+The executable finds its two libraries in its own folder. Add `--log_level=debug --log_file=run.log` when reporting a problem.
 
 ## Building and installing (PS5)
 
@@ -146,7 +175,8 @@ Run it on Arch Linux as root (Arch under WSL2 works). It builds the PS5 toolchai
 | `halo3/source/` | Engine code reimplemented in C++, in the original source layout |
 | `source/` | Desktop host (`main.cpp`) and the hooks shared by all platforms |
 | `generated/` | `rexglue.cmake` (committed); the recompiled code is generated here and not committed |
-| `scripts/` | `build_linux.sh`: the one-command Linux build |
+| `scripts/` | `build_linux.sh` and `docker_build_linux.sh`: the one-command Linux builds, on the host or in Docker |
+| `docker/linux/` | The Linux build image (toolchain and SDK only) and the script that runs in it |
 | `ps5/` | PS5 port: build scripts, host, SDK patches (GPL-3.0-or-later) |
 
 ## Contributing
