@@ -31,9 +31,10 @@ The runtime side is reused unchanged: the two SDK patches are mcla-recomp's, byt
 - **Guest data references.** `REX_DATA_REFERENCE_DECLARE` assumed guest memory at host address `0x100000000`. On PS5 it sits wherever the kernel put it. The references now resolve through the runtime's memory base on first use (`rex_macros.h`). Members are reached with `->`.
 - **Windows-only code.** MSVC headers, `__pragma`, `_inline`, untyped forward-declared enums, `strncpy_s`/`vsnprintf_s`/`fopen_s`, `_Interlocked*`, and the Win32 time and sleep functions the hooks call are now portable. Windows still uses the originals (`cseries/cseries_win32_compat.h`, `cseries/platform.h`).
 - **Hooks shared with the PS5 host.** The hooks and the `cache:`/`xstorage:` devices moved from `source/main.cpp` to `source/halo3_cache_debug_hooks.cpp`, so the PS5 host links them without the desktop app.
+- **`main` clash.** The engine's own `main` (hooked over the guest's) is now `xenon_main` on the host, so it does not collide with the PS5 host's `main` (or the SDK's on Linux).
 - **Game data.** There is no disc image to extract. You give the folder you run the desktop build from (`halo3_cache_debug.xex` and the data next to it), and it is uploaded to `/data/halo3/game`.
 
-The PS5 build uses its own ReXGlue v0.10.0 checkout and its own generated code (`/root/halo3/generated`). The desktop build's SDK version and `generated/` folder are not touched.
+The PS5 build uses the same SDK release as the desktop build (v0.10.0), but its own patched checkout and its own generated code (`/root/halo3/generated`). The repository's `generated/` folder is not touched.
 
 ## Building and installing
 

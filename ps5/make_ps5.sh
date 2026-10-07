@@ -43,9 +43,9 @@ rex_src="$WORK/rexglue-sdk"
 rex_build="$WORK/build-ps5"
 rex_host="$WORK/build-host"
 gen_dir="$WORK/generated"
-# The SDK release the PS5 patches are made against. The desktop build may pin
-# a different one (halo3_cache_debug_manifest.toml); the PS5 build keeps its
-# own checkout and generated code, so the two do not interfere.
+# The SDK release the PS5 patches are made against, the same one the desktop
+# build uses (halo3_cache_debug_manifest.toml). The PS5 build keeps its own
+# patched checkout and generated code, so the two do not interfere.
 rex_tag=v0.10.0
 rex_commit=f5337cdc947ff6d4c4196737e2c807a48f2a1fc2
 project=halo3_cache_debug

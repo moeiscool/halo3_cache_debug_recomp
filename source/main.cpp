@@ -9,7 +9,7 @@
 
 REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
 
-#include <rex/graphics/flags.h>
+#include <rex/cvar.h>
 #include <rex/input/flags.h>
 
 #if defined(_WIN32)
@@ -18,8 +18,13 @@ REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
 
 void Halo3CacheDebugApp::OnPreSetup(rex::RuntimeConfig& config)
 {
+	// the GPU emulation is a plugin; load it unless --gpu_plugin names another
+	if (config.gpu_plugin.empty())
+	{
+		config.gpu_plugin = "xenos";
+	}
+
 	REXCVAR_SET(allow_game_relative_writes, true);
-	REXCVAR_SET(gpu_allow_invalid_fetch_constants, true);
 #if defined(_WIN32)
 	REXCVAR_SET(input_backend, "xinput");
 #endif
@@ -39,6 +44,9 @@ void Halo3CacheDebugApp::OnLoadXexImage(std::string& xex_image)
 
 void Halo3CacheDebugApp::OnPostSetup()
 {
+	// defined in the GPU plugin, so it exists only once the plugin has loaded
+	rex::cvar::SetFlagByName("gpu_allow_invalid_fetch_constants", "true");
+
 	halo3_register_host_devices(rex::ReXApp::ReXApp::runtime());
 }
 

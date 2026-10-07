@@ -17,7 +17,7 @@ See [halo3_cache_release_recomp](https://github.com/twist84/halo3_cache_release_
 | Target | State |
 |---|---|
 | Windows | Boots and plays (screenshot above). This is where the project is developed. |
-| Linux | The host code compiles on 64-bit Linux, but a full Linux build has not been run yet. CMake presets exist (`linux-amd64-*`). |
+| Linux | Builds with one command (`scripts/build_linux.sh`) against the released SDK. Checked up to the runtime starting and loading the game file; not yet played through with the game. |
 | PS5 (jailbroken) | Build scripts and host are in place, adapted from the [mcla-recomp](https://github.com/holdmysocks/mcla-recomp) PS5 port. **Not yet run on a console.** See [`ps5/README.md`](ps5/README.md). |
 
 Help is welcome on all three: see [Contributing](#contributing).
@@ -52,7 +52,7 @@ The game's PowerPC code is translated to C++ ahead of time by the [ReXGlue SDK](
 - Windows 10 or 11, x86-64.
 - [CMake](https://cmake.org/) 3.25 or newer, [Ninja](https://ninja-build.org/), and Clang (the presets use `clang`/`clang++`).
 - Visual Studio Build Tools 2022 with "Desktop development with C++", for the Windows SDK and C++ libraries.
-- The **ReXGlue SDK** at the version in `halo3_cache_debug_manifest.toml` (`sdk_version`). The project tracks the SDK's development branch, so build it from source. Then either install it (`cmake --install`) so `find_package` finds it, or point `REXSDK_DIR` at the SDK source tree.
+- The **ReXGlue SDK v0.10.0** (the `sdk_version` in `halo3_cache_debug_manifest.toml`). Download `rexglue-sdk-0.10.0-win-amd64.zip` from the [SDK's releases](https://github.com/rexglue/rexglue-sdk/releases/tag/v0.10.0) and unpack it. Alternatively, build it from source and point `REXSDK_DIR` at the source tree.
 - Your `halo3_cache_debug.xex` and the build's data files.
 
 ### Build
@@ -63,7 +63,7 @@ The game's PowerPC code is translated to C++ ahead of time by the [ReXGlue SDK](
      assets\halo3_cache_debug.xex
      halo3_cache_debug_recomp\        (this repository)
    ```
-2. Recompile the game's code into `generated\` (also what `ProjectCodegen.bat` does):
+2. Recompile the game's code into `generated\` with the SDK's `rexglue` (also what `ProjectCodegen.bat` does):
    ```powershell
    rexglue codegen halo3_cache_debug_manifest.toml
    ```
@@ -73,11 +73,11 @@ The game's PowerPC code is translated to C++ ahead of time by the [ReXGlue SDK](
    cmake --preset win-amd64-release
    cmake --build out\build\win-amd64-release
    ```
-   Add `-DREXSDK_DIR=C:\path\to\rexglue-sdk` to the first command if the SDK is not installed. `win-amd64-debug` and `win-amd64-relwithdebinfo` also exist.
+   Add `-DCMAKE_PREFIX_PATH=C:\path\to\unpacked\sdk` to the first command, or `-DREXSDK_DIR=C:\path\to\rexglue-sdk` for a source tree. `win-amd64-debug` and `win-amd64-relwithdebinfo` also exist.
 
 ### Run
 
-Copy `out\build\win-amd64-release\halo3_cache_debug.exe` into your game folder (the one with `halo3_cache_debug.xex` and the maps), then start it from there. Started without a debugger, it uses the current folder for everything: game data, saves, shader cache and its settings file `halo3_cache_debug.toml`. Under a debugger it uses the SDK's default paths, so set them in your launch settings.
+Start `out\build\win-amd64-release\halo3_cache_debug.exe` from your game folder (the one with `halo3_cache_debug.xex` and the maps), or copy it there together with the DLLs the build put next to it (the runtime and the `xenos` GPU plugin among them). Started without a debugger, it uses the current folder for everything: game data, saves, shader cache and its settings file `halo3_cache_debug.toml`. Under a debugger it uses the SDK's default paths, so set them in your launch settings.
 
 Settings you may want, as top-level keys in `halo3_cache_debug.toml` (for example `raw_host = "192.168.1.20"`) or on the command line (`--raw_host=192.168.1.20`):
 
@@ -89,6 +89,45 @@ Settings you may want, as top-level keys in `halo3_cache_debug.toml` (for exampl
 | `x_link_status_override` | `-1` | Forces the network link status so the game starts its transport layer |
 
 Controller 0 is always treated as signed in to Xbox Live. Script documentation can be dumped to `hs_doc.txt` with the game's `hs_doc` command.
+
+## Building and running (Linux)
+
+### What you need
+
+- x86-64 Linux with a Vulkan driver for your GPU (Mesa's RADV or ANV, or NVIDIA's).
+- CMake 3.25 or newer, Ninja, Clang 18 or newer, curl, unzip. For example:
+  - Debian/Ubuntu: `sudo apt install cmake ninja-build clang curl unzip libvulkan1 mesa-vulkan-drivers`
+  - Arch: `sudo pacman -S --needed cmake ninja clang curl unzip vulkan-icd-loader` (plus `vulkan-radeon`, `vulkan-intel` or your NVIDIA driver)
+  - Fedora: `sudo dnf install cmake ninja-build clang curl unzip vulkan-loader mesa-vulkan-drivers`
+- Your `halo3_cache_debug.xex` and the build's data files.
+
+### Build
+
+```bash
+git clone <this repository>
+cd halo3_cache_debug_recomp
+bash scripts/build_linux.sh --xex /path/to/halo3/halo3_cache_debug.xex
+```
+
+The script runs these steps, skipping any whose result is already there, so run it again after a failure or a `git pull`:
+
+1. Checks for the tools.
+2. Downloads the prebuilt ReXGlue SDK v0.10.0 for Linux into `third_party/` and checks it against a pinned SHA-256. Pass `--sdk-dir DIR` to use your own instead.
+3. Links your executable into `../assets/`, where the manifest looks for it, as on Windows.
+4. Recompiles the game's code into `generated/`.
+5. Builds `out/build/linux-amd64-release/halo3_cache_debug`, with `librexruntime.so` and the GPU plugin `librexgpu-xenos.so` beside it.
+
+Options: `--config debug` or `--config relwithdebinfo` for other builds, `--jobs N`, and `--play [DIR]` to start the game when the build is done. By hand, the same is `rexglue codegen halo3_cache_debug_manifest.toml`, then `cmake --preset linux-amd64-release -DCMAKE_PREFIX_PATH=<sdk>`, then `cmake --build out/build/linux-amd64-release`.
+
+### Run
+
+Start the executable from your game folder; it uses the current folder exactly as on Windows (game data, saves, shader cache, `halo3_cache_debug.toml`), and takes the same settings:
+
+```bash
+cd /path/to/halo3 && /path/to/halo3_cache_debug_recomp/out/build/linux-amd64-release/halo3_cache_debug
+```
+
+The executable finds its two libraries in its own folder, so it can be started from anywhere. Add `--log_level=debug --log_file=run.log` when reporting a problem.
 
 ## Building and installing (PS5)
 
@@ -107,6 +146,7 @@ Run it on Arch Linux as root (Arch under WSL2 works). It builds the PS5 toolchai
 | `halo3/source/` | Engine code reimplemented in C++, in the original source layout |
 | `source/` | Desktop host (`main.cpp`) and the hooks shared by all platforms |
 | `generated/` | `rexglue.cmake` (committed); the recompiled code is generated here and not committed |
+| `scripts/` | `build_linux.sh`: the one-command Linux build |
 | `ps5/` | PS5 port: build scripts, host, SDK patches (GPL-3.0-or-later) |
 
 ## Contributing
@@ -115,7 +155,8 @@ Pull requests are welcome: new hooks and reimplemented functions, fixes, functio
 
 Some things that keep the code working everywhere:
 
-- **Never commit game files**: no `.xex`, maps or generated code. `generated/` holds only `rexglue.cmake`.
+- **Never commit game files**: no `.xex`, maps or generated code. `generated/` holds only `rexglue.cmake`, and `.gitignore` covers the rest.
+- **Build on more than one platform if you can.** Windows and Linux use the same SDK release (v0.10.0), so a change can be checked on both.
 - **Use explicit integer widths** in `halo3/source/`: `int32`/`uns32` (from `cseries/platform.h`), not `long`, and `char16_t` for guest wide strings. `long` is 64 bits on Linux and PS5, and structures shared with the guest must keep their Xbox 360 layout.
 - **Guest globals** go through `REX_DATA_REFERENCE_DECLARE(address, type, name)`. Use `->` for members and `*name` for the value, and `extern REX_DATA_REFERENCE_EXTERN(type, name);` in headers. Never use a fixed host address.
 - **No new Windows-only calls** in shared code. If something needs a Win32 function, add a portable equivalent to `cseries/cseries_win32_compat.h` the way `GetTickCount` and `Sleep` are done.

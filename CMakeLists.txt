@@ -35,5 +35,20 @@ target_include_directories(halo3_cache_debug PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/halo3/source
 )
 
-rexglue_setup_target(halo3_cache_debug)
+# The Xenos GPU emulation is a plugin loaded at start; stage it next to the executable.
+rexglue_setup_target(halo3_cache_debug GPU_PLUGINS xenos)
+
+if(WIN32)
+    # timeBeginPeriod in source/main.cpp.
+    target_link_libraries(halo3_cache_debug PRIVATE winmm)
+endif()
+
+if(UNIX AND NOT APPLE)
+    # The executable finds the runtime next to itself ($ORIGIN), but the SDK
+    # only stages it there on Windows and macOS.
+    add_custom_command(TARGET halo3_cache_debug POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:rex::runtime> $<TARGET_FILE_DIR:halo3_cache_debug>
+        VERBATIM)
+endif()
 
