@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "rex_macros.h"
+
 /* ---------- constants */
 
 /* ---------- definitions */
@@ -18,7 +20,7 @@ public:
 
 /* ---------- globals */
 
-extern bool& render_water_wireframe_enabled; // 0x182559570
+extern REX_DATA_REFERENCE_EXTERN(bool, render_water_wireframe_enabled); // 0x182559570
 
 /* ---------- public code */
 

@@ -16,14 +16,14 @@ struct game_time_globals_definition
 	bool paused; // 0x1
 	rex::be<short> tick_rate; // 0x2
 	rex::be<float> tick_length; // 0x4
-	rex::be<long> time; // 0x8
+	rex::be<int32> time; // 0x8
 	rex::be<float> speed; // 0xC
 	rex::be<float> leftover_ticks; // 0x10
 	rex::be<float> rate_scale_timer; // 0x14
 	rex::be<float> rate_scale_duration; // 0x18
 	rex::be<float> rate_scale_initial; // 0x1C
 	rex::be<float> rate_scale_final; // 0x20
-	rex::be<long> game_message_tick; // 0x24
+	rex::be<int32> game_message_tick; // 0x24
 };
 static_assert(sizeof(game_time_globals_definition) == 0x28);
 

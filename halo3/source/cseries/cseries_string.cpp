@@ -8,8 +8,9 @@
 
 #include <cassert>
 #include <ctype.h>
+#include <wctype.h>
 #include <string.h>
-#include <vadefs.h>
+#include <stdarg.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -21,7 +22,7 @@ const size_t k_maximum_string_size = 0x100000;
 
 /* ---------- prototypes */
 
-extern long cvsnzprintf(char* buffer, size_t size, char const* format, va_list arglist);
+extern int32 cvsnzprintf(char* buffer, size_t size, char const* format, va_list arglist);
 
 extern "C" size_t strlen_debug(char const* str);
 extern size_t csstrnlen(char const*, size_t);
@@ -42,31 +43,31 @@ t_type int_min3(t_type const& a, t_type const& b, t_type const& c)
 	return int_min(a, int_min(b, c));
 }
 
-bool ascii_islower(long character_code)
+bool ascii_islower(int32 character_code)
 {
 	bool result = bool(character_code >= 'a' && character_code <= 'z');
 	return result;
 }
 
-bool ascii_isupper(long character_code)
+bool ascii_isupper(int32 character_code)
 {
 	bool result = bool(character_code >= 'A' && character_code <= 'Z');
 	return result;
 }
 
-bool ascii_isdigit(long character_code)
+bool ascii_isdigit(int32 character_code)
 {
 	bool result = bool(character_code >= '0' && character_code <= '9');
 	return result;
 }
 
-bool ascii_isalnum(long character_code)
+bool ascii_isalnum(int32 character_code)
 {
 	bool result = bool(ascii_isupper(character_code) || ascii_islower(character_code) || ascii_isdigit(character_code));
 	return result;
 }
 
-bool ascii_isspace(long character_code)
+bool ascii_isspace(int32 character_code)
 {
 	bool result = bool(character_code >= '\t' && character_code <= '\r' || character_code == ' ');
 	return result;
@@ -74,19 +75,19 @@ bool ascii_isspace(long character_code)
 
 bool ascii_isspace(char character_code)
 {
-	return ascii_isspace(static_cast<long>(static_cast<unsigned char>(character_code)));
+	return ascii_isspace(static_cast<int32>(static_cast<unsigned char>(character_code)));
 }
 
-long ascii_tolower(long character_code)
+int32 ascii_tolower(int32 character_code)
 {
-	long result = ascii_isupper(character_code) ? character_code + 32 : character_code;
+	int32 result = ascii_isupper(character_code) ? character_code + 32 : character_code;
 
 	return result;
 }
 
-long ascii_toupper(long character_code)
+int32 ascii_toupper(int32 character_code)
 {
-	long result = ascii_islower(character_code) ? character_code - 32 : character_code;
+	int32 result = ascii_islower(character_code) ? character_code - 32 : character_code;
 
 	return result;
 }
@@ -96,7 +97,7 @@ char* ascii_strnupr(char* string, size_t count)
 	assert(string != NULL || count == 0);
 	assert(count >= 0 && count < k_maximum_string_size);
 
-	for (long character_index = 0; character_index < count && string[character_index]; character_index++)
+	for (int32 character_index = 0; character_index < count && string[character_index]; character_index++)
 	{
 		if (ascii_islower(string[character_index]))
 		{
@@ -112,7 +113,7 @@ char* ascii_strnlwr(char* string, size_t count)
 	assert(string != NULL || count == 0);
 	assert(count >= 0 && count < k_maximum_string_size);
 
-	for (long character_index = 0; character_index < count && string[character_index]; character_index++)
+	for (int32 character_index = 0; character_index < count && string[character_index]; character_index++)
 	{
 		if (ascii_isupper(string[character_index]))
 		{
@@ -136,10 +137,10 @@ unsigned int ascii_stristr(char const* look_inside, char const* look_for)
 	}
 	else
 	{
-		long a = ascii_tolower(*look_for);
+		int32 a = ascii_tolower(*look_for);
 		for (size_t character_index = 0; ; character_index++)
 		{
-			long b = ascii_tolower(look_inside[character_index]);
+			int32 b = ascii_tolower(look_inside[character_index]);
 			if (!b)
 			{
 				break;
@@ -155,17 +156,17 @@ unsigned int ascii_stristr(char const* look_inside, char const* look_for)
 	return index_of_substring;
 }
 
-long ascii_strnicmp(char const* s1, char const* s2, size_t maximum_character_comparisons)
+int32 ascii_strnicmp(char const* s1, char const* s2, size_t maximum_character_comparisons)
 {
-	long result = 0;
+	int32 result = 0;
 
 	assert(s1 && s2);
 	assert(maximum_character_comparisons >= 0 && maximum_character_comparisons < k_maximum_string_size);
 
-	for (long character_index = 0; character_index < maximum_character_comparisons; character_index++)
+	for (int32 character_index = 0; character_index < maximum_character_comparisons; character_index++)
 	{
-		long a = ascii_tolower(s1[character_index]);
-		long b = ascii_tolower(s2[character_index]);
+		int32 a = ascii_tolower(s1[character_index]);
+		int32 b = ascii_tolower(s2[character_index]);
 
 		if (!a)
 		{
@@ -187,16 +188,16 @@ long ascii_strnicmp(char const* s1, char const* s2, size_t maximum_character_com
 	return result;
 }
 
-long ascii_stricmp(char const* s1, char const* s2)
+int32 ascii_stricmp(char const* s1, char const* s2)
 {
-	long result = 0;
+	int32 result = 0;
 
 	assert(s1 && s2);
 
-	for (long character_index = 0; ; character_index++)
+	for (int32 character_index = 0; ; character_index++)
 	{
-		long a = ascii_tolower(s1[character_index]);
-		long b = ascii_tolower(s2[character_index]);
+		int32 a = ascii_tolower(s1[character_index]);
+		int32 b = ascii_tolower(s2[character_index]);
 
 		if (!a)
 		{
@@ -218,17 +219,17 @@ long ascii_stricmp(char const* s1, char const* s2)
 	return result;
 }
 
-long csstricmp(char const* s1, char const* s2)
+int32 csstricmp(char const* s1, char const* s2)
 {
-	long result = 0;
-	long character_index = 0;
+	int32 result = 0;
+	int32 character_index = 0;
 
 	assert(s1 && s2);
 
 	while (true)
 	{
-		long a = towlower(static_cast<short>(s1[character_index]));
-		long b = towlower(static_cast<short>(s2[character_index]));
+		int32 a = static_cast<uns16>(towlower(static_cast<uns16>(static_cast<short>(s1[character_index]))));
+		int32 b = static_cast<uns16>(towlower(static_cast<uns16>(static_cast<short>(s2[character_index]))));
 
 		if (!a)
 		{
@@ -252,17 +253,17 @@ long csstricmp(char const* s1, char const* s2)
 	return result;
 }
 
-long csstrnicmp(char const* s1, char const* s2, size_t count)
+int32 csstrnicmp(char const* s1, char const* s2, size_t count)
 {
-	long result = 0;
-	long character_index;
+	int32 result = 0;
+	int32 character_index;
 
 	assert(s1 && s2);
 
 	for (character_index = 0; character_index != count; character_index++)
 	{
-		long a = towlower(static_cast<short>(s1[character_index]));
-		long b = towlower(static_cast<short>(s2[character_index]));
+		int32 a = static_cast<uns16>(towlower(static_cast<uns16>(static_cast<short>(s1[character_index]))));
+		int32 b = static_cast<uns16>(towlower(static_cast<uns16>(static_cast<short>(s2[character_index]))));
 
 		if (!a)
 		{
@@ -432,13 +433,13 @@ char* csnzappendf(char* buffer, size_t size, char const* format, ...)
 	return buffer;
 }
 
-extern long cvsnzprintf(char* buffer, size_t size, char const* format, va_list arglist)
+extern int32 cvsnzprintf(char* buffer, size_t size, char const* format, va_list arglist)
 {
 	assert(buffer);
 	assert(format);
 	assert(size > 0 && size <= k_maximum_string_size);
 
-	long chars_written = vsnprintf_s(buffer, size, size - 1, format, arglist);
+	int32 chars_written = vsnprintf_s(buffer, size, size - 1, format, arglist);
 	buffer[size - 1] = 0;
 
 	return chars_written;

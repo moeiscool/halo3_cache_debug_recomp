@@ -4,13 +4,15 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 /* ---------- constants */
 
 /* ---------- definitions */
 
 /* ---------- prototypes */
 
-extern unsigned long system_milliseconds();
+extern uns32 system_milliseconds();
 extern void system_exit(int code);
 
 /* ---------- globals */

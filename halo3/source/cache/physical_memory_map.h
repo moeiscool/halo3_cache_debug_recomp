@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 /* ---------- constants */
 
 enum memory_stage
@@ -27,8 +29,8 @@ extern void physical_memory_initialize(void);
 extern void physical_memory_dispose(void);
 extern void physical_memory_stage_push(memory_stage stage);
 extern void physical_memory_stage_pop(memory_stage stage);
-extern unsigned long _physical_memory_malloc(memory_stage stage, char const* name, unsigned long size, unsigned long flags, char const* file, long line); // void*
-extern void physical_memory_free(unsigned long base_address); // void*
+extern uns32 _physical_memory_malloc(memory_stage stage, char const* name, uns32 size, uns32 flags, char const* file, int32 line); // void*
+extern void physical_memory_free(uns32 base_address); // void*
 
 /* ---------- globals */
 

@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 /* ---------- constants */
 
 enum e_character_physics_override
@@ -52,8 +54,8 @@ public:
 private:
 	unsigned char m_mode; // 0x2
 	unsigned char m_collision_damage_imunity_counter; // 0x3
-	long m_object_index; // 0x4
-	unsigned long m_character_physics_mode_datum_buffer[30 /* confirm this */]; // 0x8
+	int32 m_object_index; // 0x4
+	uns32 m_character_physics_mode_datum_buffer[30 /* confirm this */]; // 0x8
 };
 static_assert(sizeof(c_character_physics_component) == 0x80);
 

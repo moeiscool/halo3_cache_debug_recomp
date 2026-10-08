@@ -30,18 +30,18 @@ static_assert(sizeof(s_configure_memory) == 0x10);
 struct s_main_game_globals
 {
 	rex::be<e_map_memory_configuration> map_memory_configuration; // 0x0
-	rex::be<long> game_loaded_status; // 0x4
+	rex::be<int32> game_loaded_status; // 0x4
 	char game_loaded_scenario_path[260]; // 0x8
 	bool map_reset_in_progress; // 0x10C
 	bool map_advance_pending; // 0x10D
 	bool map_change_pending; // 0x10E
 	bool map_change_pending_unload; // 0x10F
-	rex::be<unsigned long> map_change_initiate_time; // 0x110
-	rex::be<unsigned long> map_change_timer; // 0x114
+	rex::be<uns32> map_change_initiate_time; // 0x110
+	rex::be<uns32> map_change_timer; // 0x114
 	game_options pending_game_options; // 0x118
 	bool load_core_on_game_launch; // 0xD418
 	char core_name[255]; // 0xD419
-	rex::be<long> launch_player_count; // 0xD518
+	rex::be<int32> launch_player_count; // 0xD518
 	char pad[4]; // 0xD51C
 	game_options launch_game_options; // 0xD520
 };
@@ -125,7 +125,7 @@ void main_game_configure_map_memory(game_options const* options)
 	return;
 
 	e_map_memory_configuration desired_memory_configuration = compute_desired_map_memory_configuration(options);
-	if (main_game_globals.map_memory_configuration != desired_memory_configuration)
+	if (main_game_globals->map_memory_configuration != desired_memory_configuration)
 	{
 		main_game_configure_map_memory_pop();
 		main_game_configure_map_memory_push(desired_memory_configuration);
@@ -134,9 +134,9 @@ void main_game_configure_map_memory(game_options const* options)
 
 void main_game_configure_map_memory_pop()
 {
-	if (main_game_globals.map_memory_configuration > _map_memory_configuration_none)
+	if (main_game_globals->map_memory_configuration > _map_memory_configuration_none)
 	{
-		for (long index = NUMBEROF(g_configure_memory_procs) - 1; index >= 0; index--)
+		for (int32 index = NUMBEROF(g_configure_memory_procs) - 1; index >= 0; index--)
 		{
 			if (g_configure_memory_procs[index].dispose_memory_proc != nullptr)
 			{
@@ -145,7 +145,7 @@ void main_game_configure_map_memory_pop()
 		}
 
 		physical_memory_stage_pop(_memory_stage_map_configuration);
-		main_game_globals.map_memory_configuration = _map_memory_configuration_none;
+		main_game_globals->map_memory_configuration = _map_memory_configuration_none;
 	}
 }
 
@@ -154,9 +154,9 @@ void main_game_configure_map_memory_push(e_map_memory_configuration desired_memo
 	if (desired_memory_configuration > _map_memory_configuration_none)
 	{
 		physical_memory_stage_push(_memory_stage_map_configuration);
-		main_game_globals.map_memory_configuration = desired_memory_configuration;
+		main_game_globals->map_memory_configuration = desired_memory_configuration;
 
-		for (long index = 0; index < NUMBEROF(g_configure_memory_procs); index++)
+		for (int32 index = 0; index < NUMBEROF(g_configure_memory_procs); index++)
 		{
 			if (g_configure_memory_procs[index].configure_memory_proc != nullptr)
 			{
@@ -177,29 +177,29 @@ void main_game_internal_close_caches(void)
 
 void main_game_internal_map_unload_begin(void)
 {
-	assert(main_game_globals.game_loaded_status == _game_loaded_status_map_loaded);
+	assert(main_game_globals->game_loaded_status == _game_loaded_status_map_loaded);
 	assert(!bink_playback_active());
 
 	main_game_internal_close_caches();
-	main_game_globals.game_loaded_status = _game_loaded_status_map_unloading;
-	csstrnzcpy(main_game_globals.game_loaded_scenario_path, "", NUMBEROF(main_game_globals.game_loaded_scenario_path));
+	main_game_globals->game_loaded_status = _game_loaded_status_map_unloading;
+	csstrnzcpy(main_game_globals->game_loaded_scenario_path, "", NUMBEROF(main_game_globals->game_loaded_scenario_path));
 }
 
 void main_game_internal_map_unload_complete(void)
 {
-	assert(main_game_globals.game_loaded_status == _game_loaded_status_map_unloading);
+	assert(main_game_globals->game_loaded_status == _game_loaded_status_map_unloading);
 
 	physical_memory_stage_pop(_memory_stage_level_initialize);
-	main_game_globals.game_loaded_status = 0;
+	main_game_globals->game_loaded_status = 0;
 }
 
 void main_game_internal_pregame_unload(void)
 {
-	assert(main_game_globals.game_loaded_status == _game_loaded_status_pregame);
+	assert(main_game_globals->game_loaded_status == _game_loaded_status_pregame);
 
 	physical_memory_stage_pop(_memory_stage_level_initialize);
 	physical_memory_stage_pop(_memory_stage_map_configuration);
-	main_game_globals.game_loaded_status = _game_loaded_status_none;
+	main_game_globals->game_loaded_status = _game_loaded_status_none;
 }
 
 void main_game_unload_and_prepare_for_next_game(game_options const* options)
@@ -215,7 +215,7 @@ void main_game_unload_and_prepare_for_next_game(game_options const* options)
 		game_dispose_from_old_map();
 	}
 
-	long game_loaded_status = main_game_globals.game_loaded_status;
+	int32 game_loaded_status = main_game_globals->game_loaded_status;
 	switch (game_loaded_status)
 	{
 	case _game_loaded_status_none:
@@ -244,11 +244,11 @@ void main_game_unload_and_prepare_for_next_game(game_options const* options)
 		throw "unreachable";
 	}
 
-	assert(main_game_globals.game_loaded_status == _game_loaded_status_none);
+	assert(main_game_globals->game_loaded_status == _game_loaded_status_none);
 	main_game_configure_map_memory(options);
 }
 
-c_wait_for_render_thread::c_wait_for_render_thread(char const* file, long line) :
+c_wait_for_render_thread::c_wait_for_render_thread(char const* file, int32 line) :
 	m_token(_internal_halt_render_thread_and_lock_resources(file, line))
 {
 }

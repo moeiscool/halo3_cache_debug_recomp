@@ -76,8 +76,10 @@ bool shell_initialize(bool null_device)
 {
     bool success;
 
+#if defined(_WIN32)
     _set_purecall_handler(&shell_halt_on_pure_virtual_call);
     _CrtSetReportHook2(_CRT_RPTHOOK_INSTALL, microsoft_crt_report_hook);
+#endif
 
     cseries_initialize();
     SYSTEM_DEBUG_MEMORY("after cseries_initialize()");

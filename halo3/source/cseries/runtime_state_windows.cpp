@@ -25,12 +25,12 @@ REX_PPC_EXTERN_IMPORT(runtime_state_allocate_buffer);
 
 /* ---------- public code */
 
-unsigned long runtime_state_allocate_buffer(long size) // void*
+uns32 runtime_state_allocate_buffer(int32 size) // void*
 {
 #if 1
     return REX_PPC_INVOKE(runtime_state_allocate_buffer, size);
 #else
-    unsigned long result = _physical_memory_malloc(
+    uns32 result = _physical_memory_malloc(
         _memory_stage_game_initialize,
         "runtime state (not game state)",
         size,
@@ -41,7 +41,7 @@ unsigned long runtime_state_allocate_buffer(long size) // void*
 #endif
 }
 
-void runtime_state_free_buffer(unsigned long buffer) // void*
+void runtime_state_free_buffer(uns32 buffer) // void*
 {
     physical_memory_free(buffer);
 }

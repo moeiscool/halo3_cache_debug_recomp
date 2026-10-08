@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "rex_macros.h"
+
 #include "cseries/cseries_macros.h"
 
 /* ---------- constants */
@@ -16,7 +18,7 @@ FORWARD_DECLARE_ENUM(e_map_memory_configuration);
 
 /* ---------- globals */
 
-extern bool& g_online_is_connected_to_live;
+extern REX_DATA_REFERENCE_EXTERN(bool, g_online_is_connected_to_live);
 
 /* ---------- public code */
 

@@ -21,22 +21,22 @@
 
 // $TODO add template functions
 
-template<typename t_type, long k_count>
+template<typename t_type, int32 k_count>
 class c_static_array
 {
 public:
 	typedef t_type* iterator;
 	typedef t_type const* const_iterator;
 
-	t_type& operator[](long index);
-	t_type const& operator[](long) const;
+	t_type& operator[](int32 index);
+	t_type const& operator[](int32) const;
 
 //private:
 	t_type m_elements[k_count]; // 0x0
 };
-static_assert(sizeof(c_static_array<long, 6>) == 24);
+static_assert(sizeof(c_static_array<int32, 6>) == 24);
 
-template<typename t_type, long k_count>
+template<typename t_type, int32 k_count>
 class c_static_stack
 {
 public:
@@ -44,12 +44,12 @@ public:
 	typedef t_type const* const_iterator;
 
 //private:
-	rex::be<long> m_count; // 0x0
+	rex::be<int32> m_count; // 0x0
 	t_type m_elements[k_count]; // 0x4
 };
-static_assert(sizeof(c_static_stack<long, 8>) == 36);
+static_assert(sizeof(c_static_stack<int32, 8>) == 36);
 
-template<long k_count>
+template<int32 k_count>
 class c_static_flags_no_init
 {
 public:
@@ -59,11 +59,11 @@ public:
 	};
 
 //private:
-	rex::be<unsigned long> m_flags[k_size_in_dwords]; // 0x0
+	rex::be<uns32> m_flags[k_size_in_dwords]; // 0x0
 };
 static_assert(sizeof(c_static_flags_no_init<256>) == 0x20);
 
-template<long k_count>
+template<int32 k_count>
 class c_static_flags :
 	public c_static_flags_no_init<k_count>
 {
@@ -71,7 +71,7 @@ public:
 };
 static_assert(sizeof(c_static_flags<256>) == 0x20);
 
-template<long k_count>
+template<int32 k_count>
 class c_static_string
 {
 public:
@@ -82,11 +82,11 @@ public:
 };
 static_assert(sizeof(c_static_string<256>) == 256);
 
-template<long k_count>
+template<int32 k_count>
 class c_static_wchar_string
 {
 public:
-	typedef wchar_t t_wchar_buffer[k_count];
+	typedef char16_t t_wchar_buffer[k_count];
 
 //private:
 	t_wchar_buffer m_string; // 0x0
@@ -129,14 +129,14 @@ public:
 
 // $TODO add template implementations
 
-template<typename t_type, long k_count>
-_inline t_type& c_static_array<t_type, k_count>::operator[](long index)
+template<typename t_type, int32 k_count>
+inline t_type& c_static_array<t_type, k_count>::operator[](int32 index)
 {
 	return m_elements[index];
 }
 
-template<typename t_type, long k_count>
-_inline t_type const& c_static_array<t_type, k_count>::operator[](long index) const
+template<typename t_type, int32 k_count>
+inline t_type const& c_static_array<t_type, k_count>::operator[](int32 index) const
 {
 	return m_elements[index];
 }

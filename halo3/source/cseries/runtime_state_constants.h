@@ -4,9 +4,11 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 /* ---------- constants */
 
-const unsigned long k_runtime_state_size = 0x23000;
+const uns32 k_runtime_state_size = 0x23000;
 
 /* ---------- definitions */
 

@@ -4,6 +4,8 @@
 
 #include "rex_macros.h"
 
+#include "cseries/cseries_win32_compat.h"
+
 /* ---------- constants */
 
 /* ---------- definitions */
@@ -35,7 +37,7 @@ void destroy_thread_management(void)
     REX_PPC_INVOKE(destroy_thread_management);
 }
 
-void sleep(unsigned long sleep_time_in_milliseconds)
+void sleep_milliseconds(uns32 sleep_time_in_milliseconds)
 {
     Sleep(sleep_time_in_milliseconds);
 }

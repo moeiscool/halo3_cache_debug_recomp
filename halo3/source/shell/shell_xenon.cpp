@@ -15,7 +15,9 @@
 
 /* ---------- prototypes */
 
-int main(int argc, char const** argv, char const** envp);
+// the game's `main`, renamed so it does not clash with the host's own `main`
+// (the SDK's entry point on Linux, the PS5 host's on the console)
+int xenon_main(int argc, char const** argv, char const** envp);
 
 /* ---------- globals */
 
@@ -31,7 +33,7 @@ REX_PPC_EXTERN_IMPORT(file_system_cache_initialize);
 
 // hooks
 
-REX_PPC_HOOK(main);
+REX_HOOK(rex_main, xenon_main);
 
 /* ---------- public code */
 
@@ -58,7 +60,7 @@ void file_system_cache_initialize(void)
     REX_PPC_INVOKE(file_system_cache_initialize);
 }
 
-int main(int argc, char const** argv, char const** envp)
+int xenon_main(int argc, char const** argv, char const** envp)
 {
     SYSTEM_DEBUG_MEMORY("initial call into main()");
 

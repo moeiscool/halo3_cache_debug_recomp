@@ -37,10 +37,10 @@ struct _main_globals
 	bool byte_846AE4F1;
 	bool modify_zone_activation;
 	bool cheat_drop_tag;
-	rex::be<long> switch_zone_set_index;
-	rex::be<long> dword_828D7B20;
-	rex::be<long> deactivating_designer_zone_mask;
-	rex::be<long> cheat_drop_tag_index;
+	rex::be<int32> switch_zone_set_index;
+	rex::be<int32> dword_828D7B20;
+	rex::be<int32> deactivating_designer_zone_mask;
+	rex::be<int32> cheat_drop_tag_index;
 };
 static_assert(sizeof(_main_globals) == 0x64);
 
@@ -98,16 +98,16 @@ void main_loop(void)
 	restricted_region_unlock_primary(k_global_render_data_region);
 	restricted_region_unlock_primary(k_game_state_render_region);
 
-	long main_loop_index = 0;
-	unsigned long previous_loop_time = system_milliseconds();
+	int32 main_loop_index = 0;
+	uns32 previous_loop_time = system_milliseconds();
 
 	unlock_token render_thread_lock_token;
-	while (!main_globals.exit_game)
+	while (!main_globals->exit_game)
 	{
 		//PROFILER_SESSION_SCOPE(k_profile_session_main_loop, "[main_loop]", 0, "main_loop", 0);
 
-		unsigned long current_loop_time = system_milliseconds();
-		unsigned long loop_time_advance = current_loop_time - previous_loop_time;
+		uns32 current_loop_time = system_milliseconds();
+		uns32 loop_time_advance = current_loop_time - previous_loop_time;
 		if (disable_main_loop_throttle || loop_time_advance >= 7)
 		{
 			profiler_notify_pulse(k_profiler_pulse_update_thread);
@@ -135,7 +135,7 @@ void main_loop(void)
 				main_loop_body_single_threaded();
 			}
 
-			bool single_threaded_desired = g_single_thread_request_flags.peek() != 0;
+			bool single_threaded_desired = g_single_thread_request_flags->peek() != 0;
 			if (single_threaded_desired != single_threaded_mode_active)
 			{
 				if (single_threaded_mode_active)
@@ -153,8 +153,8 @@ void main_loop(void)
 		else
 		{
 			//PROFILER_BEGIN("main_thread_sleep", 0);
-			unsigned long sleepy_time = 7 - loop_time_advance;
-			sleep(sleepy_time);
+			uns32 sleepy_time = 7 - loop_time_advance;
+			sleep_milliseconds(sleepy_time);
 		}
 	}
 
@@ -210,7 +210,7 @@ void trace_dump_process_thread_stop(e_registered_threads thread)
 	REX_PPC_INVOKE(trace_dump_process_thread_stop, thread);
 }
 
-unlock_token _internal_halt_render_thread_and_lock_resources(char const* file, long line)
+unlock_token _internal_halt_render_thread_and_lock_resources(char const* file, int32 line)
 {
 	return REX_PPC_INVOKE(_internal_halt_render_thread_and_lock_resources, file, line);
 }

@@ -419,3 +419,11 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ReXGlue SDK downloaded by scripts/build_linux.sh
+/third_party/
+
+# Recompiled code and anything else from your copy of the game. Never commit.
+/generated/*
+!/generated/rexglue.cmake
+*.xex
